@@ -12,6 +12,14 @@ const UploadPage = () => {
 
     // 处理上传
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
+        
+        const cookies = document.cookie;
+        const user = cookies.split("; ").find(row => row.startsWith("xman_us_t="))?.split("=")[1];
+        console.log(user);
+        if (!user) {
+            toast.error("🦄请先登录Aliexpress速卖通获取cookie");
+            return;
+        }
         const formData = new FormData();
         formData.append('file', acceptedFiles[0]);
         formData.append('bizCode', "ae_profile_avatar_upload");
@@ -22,7 +30,7 @@ const UploadPage = () => {
                 body: formData
             }),
             {
-                pending: "🦄上传中",
+                pending: "🦄上传中...",
                 success: "🦄上传成功",
                 error: "🦄上传失败,请先登录Aliexpress速卖通获取cookie"
             }
@@ -32,8 +40,9 @@ const UploadPage = () => {
             setAns(prevAns => [...prevAns, resJson.url]);
             copyToClip(resJson.url)
         } else {
-            toast.error("🦄上传失败");
+            toast.error("🦄上传失败,请先登录Aliexpress速卖通获取cookie");
         }
+
     }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
