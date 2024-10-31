@@ -9,15 +9,22 @@ import { Copy, Remove, Upload } from './svg';
 const UploadPage = () => {
 
     const [ans, setAns] = useState<string[]>([]);
+    
 
     // 处理上传
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         
         const cookies = document.cookie;
         const user = cookies.split("; ").find(row => row.startsWith("xman_us_t="))?.split("=")[1];
-        console.log(user);
         if (!user) {
             toast.error("🦄请先登录Aliexpress速卖通获取cookie");
+            return;
+        }
+        // 检查文件后缀名
+        const fileName = acceptedFiles[0].name;
+        const fileExt = fileName.split('.').pop()?.toLowerCase();
+        if (!['png', 'jpg', 'jpeg'].includes(fileExt || '')) {
+            toast.error("🦄只支持png、jpg、jpeg格式的图片");
             return;
         }
         const formData = new FormData();
@@ -44,7 +51,6 @@ const UploadPage = () => {
         }
 
     }, []);
-
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
     return (
