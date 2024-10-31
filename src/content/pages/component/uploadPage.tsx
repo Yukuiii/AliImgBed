@@ -1,16 +1,15 @@
 import { Card, CardBody, Code, Button, Tooltip } from "@nextui-org/react";
 import { useDropzone } from 'react-dropzone';
-import { useCallback, useState } from 'react';
+import { useCallback, useState} from 'react';
 import { toast } from 'react-toastify';
-import { Copy, Remove, Upload } from './svg';
+import { Copy, Upload } from './svg';
+import { useImageStore } from '../store/useImageStore';
 
 
 
 const UploadPage = () => {
-
+    const { images, addImage } = useImageStore()
     const [ans, setAns] = useState<string[]>([]);
-    
-
     // 处理上传
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         
@@ -44,21 +43,20 @@ const UploadPage = () => {
         )
         const resJson = await res.json();
         if (resJson.code == 0) {
+            addImage(resJson.url)
             setAns(prevAns => [...prevAns, resJson.url]);
             copyToClip(resJson.url)
-        } else {
-            toast.error("🦄上传失败,请先登录Aliexpress速卖通获取cookie");
         }
 
-    }, []);
+    }, [addImage]);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
     return (
         <>
-            <div className="w-full mt-6">
+            <div className="w-full mt-2">
                 <Card>
                     <CardBody>
-                        <div
+                        <div    
                             {...getRootProps()}
                             className="h-[160px] border-dashed border-1 flex flex-col justify-center items-center border-gray-400 p-6 text-center hover:border-cyan-500 hover:bg-gray-100 transition duration-500 ease-in-out"
                         >
@@ -75,7 +73,7 @@ const UploadPage = () => {
             </div>
 
             {/* 结果展示 */}
-            {ans.length > 0 && (
+            {images.length > 0 && (
                 <div className="mt-6">
                     {ans.map((url, index) => (
                         <Card key={index} className="mt-2 transition duration-500 ease-in-out">
@@ -97,20 +95,6 @@ const UploadPage = () => {
                                         size="sm"
                                     >
                                         <Copy fontSize={20} />
-                                    </Button>
-                                </Tooltip>
-                                <Tooltip content="删除" closeDelay={0} >
-                                    <Button
-                                        isIconOnly
-                                        color="danger"
-                                        variant="flat"
-                                        size="sm"
-                                        onPress={() => {
-                                            setAns(prevAns => prevAns.filter(item => item !== url));
-                                            toast("🦄删除成功")
-                                        }}
-                                    >
-                                        <Remove fontSize={20} />
                                     </Button>
                                 </Tooltip>
                             </CardBody>

@@ -9,11 +9,6 @@ const Head = () => {
                 <div className="text-cyan-500 text-4xl">阿里图床</div>
 
             </div>
-            {/* <Card className="mt-2">
-                <CardBody>
-                    <p className="text-red-500">接口来源网络，仅供学习交流使用</p>
-                </CardBody>
-            </Card> */}
             <p className="text-red-500 mt-2">接口来源网络，仅供学习交流使用</p>
         </div>
     )

@@ -16,7 +16,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.2.10",
-    "react-toastify": "^10.0.6"
+    "react-toastify": "^10.0.6",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
