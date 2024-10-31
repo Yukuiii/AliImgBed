@@ -12,10 +12,10 @@
 
 ### Chrome/Edge
 
-1. 下载插件v1.0.0压缩包
+1. 下载插件Releases压缩包
 2. 打开Chrome/Edge浏览器，访问`chrome://extensions/`或`edge://extensions/`
 3. 打开开发者模式
-4. 将压缩包内的`dist`文件夹拖入窗口，完成安装使用
+4. 将压缩包内的`dist`文件夹拖入浏览器插件管理窗口，完成安装使用
 
 ## 使用 
 
