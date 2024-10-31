@@ -25,7 +25,7 @@ const UploadPage = () => {
         const fileExt = fileName.split('.').pop()?.toLowerCase();
         if (!['png', 'jpg', 'jpeg'].includes(fileExt || '')) {
             toast.error("🦄只支持png、jpg、jpeg格式的图片");
-            return;
+            return ;
         }
         const formData = new FormData();
         formData.append('file', acceptedFiles[0]);
