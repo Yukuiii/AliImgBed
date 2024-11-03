@@ -11,8 +11,8 @@ import HistoryPage from "./component/historyPage";
 const App = () => {
   return (
     <>
-      <div className=" w-full h-full container">
-        <div className="mx-auto px-4 flex w-[80%] flex-col items-center justify-center">
+      <div className="w-full h-full">
+        <div className="mx-auto px-4 flex flex-col items-center justify-center">
           <Head />
           <Tabs className="mt-2" color="primary" variant="bordered">
             <Tab className="w-[60%]" key="upload" title={
