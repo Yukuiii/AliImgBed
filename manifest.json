@@ -15,23 +15,35 @@
         "default_icon": "icons/icon.png"
     },
     "background": {
-        "service_worker": "background/service-worker.js"
+        "service_worker": "service-worker/background.js"
     },
     "permissions": [
         "activeTab",
         "storage",
         "clipboardRead",
-        "tabs"
+        "clipboardWrite",
+        "notifications",
+        "tabs",
+        "contextMenus",
+        "cookies",
+        "scripting"
     ],
-    "host_permissions": [],
-    "content_scripts": [{
-        "js": [
-            "content/content.js"
-        ],
-        "css": ["assets/content.css"],
-        "matches": [
-            "https://filebroker.aliexpress.com/AliImgUpload"
-        ],
-        "run_at": "document_start"
-    }]
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "content_scripts": [
+        {
+            "js": ["content/content.js"],
+            "css": ["assets/content.css"],
+            "matches": [
+                "https://filebroker.aliexpress.com/AliImgUpload"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "js": ["messageListener/messageListener.js"],
+            "matches": ["<all_urls>"],
+            "run_at": "document_start"
+        }
+    ]
 }
