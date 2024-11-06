@@ -14,7 +14,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     
     if (info.menuItemId === "uploadImage" && info.srcUrl && tab?.id) {
         try {
-            // 先注入内容脚本
             await chrome.scripting.executeScript({
                 target: { tabId: tab.id },
                 files: ['messageListener/messageListener.js']
@@ -25,8 +24,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
             if (!response.ok) throw new Error('获取图片失败');
             
             const blob = await response.blob();
-            
-            // 创建 FormData
             const formData = new FormData();
             formData.append('file', blob, 'image.png');
             const uploadResponse = await fetch('https://pic.2xb.cn/uppic.php?type=qq', {
