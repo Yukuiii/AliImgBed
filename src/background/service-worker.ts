@@ -26,14 +26,28 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
             const blob = await response.blob();
             const formData = new FormData();
             formData.append('file', blob, 'image.png');
-            const uploadResponse = await fetch('https://pic.2xb.cn/uppic.php?type=qq', {
+            formData.append('bizCode','ae_profile_avatar_upload')
+            // const uploadResponse = await fetch('https://pic.2xb.cn/uppic.php?type=qq', {
+            //     method: 'POST',
+            //     body: formData,
+            // });
+
+            // const data = await uploadResponse.json();
+            // if (data.code !== 200) {
+            //     throw new Error(data.message);
+            // }
+            
+            
+            // 更改图片接口
+            const uploadResponse = await fetch('https://filebroker.aliexpress.com/x/upload', {
                 method: 'POST',
                 body: formData,
+                credentials: 'include'
             });
 
             const data = await uploadResponse.json();
-            if (data.code !== 200) {
-                throw new Error(data.message);
+            if(data.code!=0){
+                throw new Error("上传失败")
             }
             // 发送消息给 content script 处理复制
             const copyResponse = await chrome.tabs.sendMessage(tab.id, {
