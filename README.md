@@ -37,3 +37,8 @@
 复制图片链接由于浏览器限制，请在上传过程中不要进行其他操作，否则会导致上传失败
 
 ![image-20241106215128101](https://i0.hdslb.com/bfs/article/606526c39b8ec0bf00e8e4cd2cccd2cf2716473.png)
+
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Yukuiii/AliImgBed&type=Date)](https://star-history.com/#Yukuiii/AliImgBed&Date)
