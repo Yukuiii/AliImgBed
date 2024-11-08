@@ -38,6 +38,11 @@
 
 ![image-20241106215128101](https://i0.hdslb.com/bfs/article/606526c39b8ec0bf00e8e4cd2cccd2cf2716473.png)
 
+### v1.0.3
+
+修复部分兼容问题
+修改右键上传图床为阿里图床
+
 
 ## Star History
 
