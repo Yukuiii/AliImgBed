@@ -1,6 +1,6 @@
 import { Card, CardBody, Code, Button, Tooltip } from "@nextui-org/react";
 import { useDropzone } from 'react-dropzone';
-import { useCallback, useState} from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Copy, Upload } from './svg';
 import { useImageStore } from '../store/useImageStore';
@@ -51,6 +51,29 @@ const UploadPage = () => {
     }, [addImage]);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
+    // 添加粘贴事件监听
+    useEffect(() => {
+        const handlePaste = (event: ClipboardEvent) => {
+            const items = event.clipboardData?.items;
+            if (items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const file = item.getAsFile();
+                        if (file) {
+                            onDrop([file]);
+                        }
+                    }
+                }
+            }
+        };
+
+        document.addEventListener('paste', handlePaste);
+        return () => {
+            document.removeEventListener('paste', handlePaste);
+        };
+    }, [onDrop]);
+
     return (
         <>
             <div className="w-full mt-2">
@@ -64,8 +87,8 @@ const UploadPage = () => {
                             <input {...getInputProps()} />
                             {
                                 isDragActive ?
-                                    <p className="select-none">拖动文件到这里...</p> :
-                                    <p className="select-none">拖动文件到这里，或点击以选择图片</p>
+                                    <p className="select-none">拖动文件到这里，或粘贴图片或点击选择图片</p> :
+                                    <p className="select-none">拖动文件到这里，或粘贴图片或点击选择图片</p>
                             }
                         </div>
                     </CardBody>
