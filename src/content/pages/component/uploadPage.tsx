@@ -46,6 +46,8 @@ const UploadPage = () => {
             addImage(resJson.url)
             setAns(prevAns => [...prevAns, resJson.url]);
             copyToClip(resJson.url)
+        } else if(resJson.code == 5){
+            toast.error("🦄cookie过期,请重新登录Aliexpress速卖通获取cookie")
         }
 
     }, [addImage]);
