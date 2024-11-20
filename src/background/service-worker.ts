@@ -1,3 +1,72 @@
+// 设置请求头
+// const RULE_ID = 1;
+// const HEADER_RULE = {
+//     id: RULE_ID,
+//     priority: 1,
+//     action: {
+//         type: "modifyHeaders",
+//         requestHeaders: [
+//             {
+//                 header: "Origin",
+//                 operation: "set",
+//                 value: "https://www.aliexpress.com"
+//             },
+//             {
+//                 header: "Referer",
+//                 operation: "set",
+//                 value: "https://filebroker.aliexpress.com/AliImgUpload"
+//             },
+//             {
+//                 header: "Sec-Ch-Ua",
+//                 operation: "set",
+//                 value: '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"'
+//             },
+//             {
+//                 header: "Sec-Ch-Ua-Mobile",
+//                 operation: "set",
+//                 value: "?0"
+//             },
+//             {
+//                 header: "Sec-Ch-Ua-Platform",
+//                 operation: "set",
+//                 value: '"Windows"'
+//             },
+//             {
+//                 header: "Sec-Fetch-Dest",
+//                 operation: "set",
+//                 value: "empty"
+//             },
+//             {
+//                 header: "Sec-Fetch-Mode",
+//                 operation: "set",
+//                 value: "cors"
+//             },
+//             {
+//                 header: "Sec-Fetch-Site",
+//                 operation: "set",
+//                 value: "same-origin"
+//             }
+//         ]
+//     },
+//     condition: {
+//         urlFilter: "https://filebroker.aliexpress.com/*",
+//         resourceTypes: ["xmlhttprequest"]
+//     }
+// } as chrome.declarativeNetRequest.Rule;
+
+// async function setupHeaderRules() {
+//     try {
+//         await chrome.declarativeNetRequest.updateDynamicRules({
+//             removeRuleIds: [RULE_ID],
+//             addRules: [HEADER_RULE]
+//         });
+//         console.log('Header rules updated successfully');
+//     } catch (error) {
+//         console.error('Failed to update header rules:', error);
+//     }
+// }
+
+
 // 创建右键菜单
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
@@ -14,6 +83,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     
     if (info.menuItemId === "uploadImage" && info.srcUrl && tab?.id) {
         try {
+            // // 在上传前确保规则已设置
+            // await setupHeaderRules();
+            
+            // 等待一小段时间确保规则生效
+            // await new Promise(resolve => setTimeout(resolve, 100));
+            
             await chrome.scripting.executeScript({
                 target: { tabId: tab.id },
                 files: ['messageListener/messageListener.js']
@@ -27,6 +102,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
             const formData = new FormData();
             formData.append('file', blob, 'image.png');
             formData.append('bizCode','ae_profile_avatar_upload')
+            // qq图床
             // const uploadResponse = await fetch('https://pic.2xb.cn/uppic.php?type=qq', {
             //     method: 'POST',
             //     body: formData,
@@ -42,7 +118,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
             const uploadResponse = await fetch('https://filebroker.aliexpress.com/x/upload', {
                 method: 'POST',
                 body: formData,
-                credentials: 'include'
             });
 
             const data = await uploadResponse.json();
