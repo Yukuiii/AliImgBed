@@ -1,3 +1,94 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* 黑白风格增强 */
+  .monochrome-card {
+    @apply bg-card border border-border shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  .monochrome-button {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 border border-primary/20 shadow-sm hover:shadow transition-all duration-200;
+  }
+
+  .monochrome-input {
+    @apply bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors duration-200;
+  }
+
+  /* 拖拽区域增强 */
+  .upload-zone {
+    @apply relative overflow-hidden;
+  }
+
+  .upload-zone::before {
+    content: "";
+    @apply absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0 transition-opacity duration-300;
+  }
+
+  .upload-zone:hover::before {
+    @apply opacity-100;
+  }
+
+  /* 代码块样式增强 */
+  .code-block {
+    @apply bg-muted/50 border border-border/50 backdrop-blur-sm;
+  }
+}

@@ -1,148 +1,187 @@
-import { Card, CardBody, Code, Button, Tooltip } from "@nextui-org/react";
-import { useDropzone } from 'react-dropzone';
-import { useCallback, useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { Copy, Upload } from './svg';
-import { useImageStore } from '../store/useImageStore';
+import { useDropzone } from "react-dropzone";
+import { useCallback, useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { Copy, Upload } from "./svg";
+import { useImageStore } from "../store/useImageStore";
+import { uploadService } from "../services/uploadService";
+import { Card, CardContent } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../../components/ui/tooltip";
+import { Code } from "../../../components/ui/code";
 
 // 上传逻辑
-const uploadFile = async (file: File, addImage: (url: string) => void, setAns: React.Dispatch<React.SetStateAction<string[]>>) => {
-    const cookies = document.cookie;
-    const user = cookies.split("; ").find(row => row.startsWith("xman_us_t="))?.split("=")[1];
-    if (!user) {
-        toast.error("🦄请先登录Aliexpress速卖通获取cookie");
-        return;
-    }
-
-    const fileName = file.name;
-    const fileExt = fileName.split('.').pop()?.toLowerCase();
-    if (!['png', 'jpg', 'jpeg'].includes(fileExt || '')) {
-        toast.error("🦄只支持png、jpg、jpeg格式的图片");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('bizCode', "ae_profile_avatar_upload");
-
+const uploadFile = async (
+  file: File,
+  addImage: (url: string) => void,
+  setAns: React.Dispatch<React.SetStateAction<string[]>>
+) => {
+  // 创建一个真正会reject的Promise用于toast.promise
+  const uploadPromise = new Promise<string>(async (resolve, reject) => {
     try {
-        const res = await toast.promise(
-            fetch("https://filebroker.aliexpress.com/x/upload", {
-                method: "POST",
-                body: formData
-            }),
-            {
-                pending: "🦄上传中...",
-                success: "🦄上传成功",
-                error: "🦄上传失败,请先登录Aliexpress速卖通获取cookie"
-            }
-        );
-        const resJson = await res.json();
-        if (resJson.code === 0) {
-            addImage(resJson.url);
-            setAns(prevAns => [...prevAns, resJson.url]);
-            copyToClip(resJson.url);
-        } else if (resJson.code === 5) {
-            toast.error("🦄cookie过期,请重新登录Aliexpress速卖通获取cookie");
-        }
+      const result = await uploadService.uploadFile(file);
+
+      if (result.success && result.url) {
+        // 上传成功
+        addImage(result.url);
+        setAns((prevAns) => [...prevAns, result.url!]);
+        uploadService.copyToClipboard(result.url);
+        resolve(result.url);
+      } else {
+        // 上传失败，reject Promise
+        reject(new Error(result.error || "上传失败"));
+      }
     } catch (error) {
-        console.error("上传过程中出错:", error);
+      reject(error);
     }
+  });
+
+  try {
+    await toast.promise(uploadPromise, {
+      pending: "🦄上传中...",
+      success: "🦄上传成功",
+      error: {
+        render({ data }: { data: Error }) {
+          return `🦄${data.message || "上传失败"}`;
+        },
+      },
+    });
+  } catch (error) {
+    // toast.promise已经处理了错误显示
+    console.error("上传失败:", error);
+  }
 };
 
 const UploadPage = () => {
-    const { images, addImage } = useImageStore();
-    const [ans, setAns] = useState<string[]>([]);
+  const { addImage } = useImageStore();
+  const [ans, setAns] = useState<string[]>([]);
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        if (acceptedFiles.length > 0) {
-            uploadFile(acceptedFiles[0], addImage, setAns);
-        }
-    }, [addImage]);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        uploadFile(acceptedFiles[0], addImage, setAns);
+      }
+    },
+    [addImage]
+  );
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-    useEffect(() => {
-        const handlePaste = (event: ClipboardEvent) => {
-            const items = event.clipboardData?.items;
-            if (items) {
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    if (item.kind === 'file' && item.type.startsWith('image/')) {
-                        const file = item.getAsFile();
-                        if (file) {
-                            onDrop([file]);
-                        }
-                    }
-                }
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items;
+      if (items) {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          if (item.kind === "file" && item.type.startsWith("image/")) {
+            const file = item.getAsFile();
+            if (file) {
+              onDrop([file]);
             }
-        };
+          }
+        }
+      }
+    };
 
-        document.addEventListener('paste', handlePaste);
-        return () => {
-            document.removeEventListener('paste', handlePaste);
-        };
-    }, [onDrop]);
+    document.addEventListener("paste", handlePaste);
+    return () => {
+      document.removeEventListener("paste", handlePaste);
+    };
+  }, [onDrop]);
 
-    return (
-        <>
-            <div className="w-full mt-2">
-                <Card>
-                    <CardBody>
-                        <div
-                            {...getRootProps()}
-                            className="h-[160px] border-dashed border-1 flex flex-col justify-center items-center border-gray-400 p-6 text-center hover:border-cyan-500 hover:bg-gray-100 transition duration-500 ease-in-out"
-                        >
-                            <Upload fontSize={64} />
-                            <input {...getInputProps()} />
-                            <p className="select-none">
-                                {isDragActive ? "拖动文件到这里，或粘贴图片或点击选择图片" : "拖动文件到这里，或粘贴图片或点击选择图片"}
-                            </p>
-                        </div>
-                    </CardBody>
-                </Card>
-            </div>
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardContent className="p-6">
+          <div
+            {...getRootProps()}
+            className={`upload-zone h-40 border-2 border-dashed rounded-lg flex flex-col justify-center items-center p-6 text-center transition-all duration-300 cursor-pointer ${
+              isDragActive
+                ? "border-primary bg-primary/5 shadow-lg scale-[1.02]"
+                : "border-muted-foreground/30 hover:border-primary hover:bg-accent/30"
+            }`}
+          >
+            <Upload
+              fontSize={64}
+              className={`mb-4 ${
+                isDragActive ? "text-primary" : "text-muted-foreground"
+              }`}
+            />
+            <input {...getInputProps()} />
+            <p
+              className={`text-sm select-none font-medium ${
+                isDragActive ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              {isDragActive
+                ? "释放文件开始上传"
+                : "拖拽图片到此处，或点击选择文件"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              支持 PNG、JPG、JPEG、GIF、WebP 格式
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
-            {/* 结果展示 */}
-            {images.length > 0 && (
-                <div className="mt-6">
-                    {ans.map((url, index) => (
-                        <Card key={index} className="mt-2 transition duration-500 ease-in-out">
-                            <CardBody className="flex flex-row items-center">
-                                <img src={url} alt={`图片缩略图 ${index + 1}`} className="w-16 h-16 object-cover mr-4" />
-                                <Code color="primary" className="mr-4">
-                                    {url}
-                                </Code>
-                                <Tooltip content="复制" closeDelay={0}>
-                                    <Button
-                                        className="mr-2"
-                                        isIconOnly
-                                        color="primary"
-                                        variant="flat"
-                                        onPress={() => {
-                                            copyToClip(url);
-                                            toast("🦄复制成功");
-                                        }}
-                                        size="sm"
-                                    >
-                                        <Copy fontSize={20} />
-                                    </Button>
-                                </Tooltip>
-                            </CardBody>
-                        </Card>
-                    ))}
+      {/* 结果展示 */}
+      {ans.length > 0 && (
+        <div className="space-y-4">
+          {ans.map((url, index) => (
+            <Card
+              key={index}
+              className="monochrome-card transition-all duration-300 hover:shadow-lg hover:scale-[1.01]"
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    <img
+                      src={url}
+                      alt={`图片缩略图 ${index + 1}`}
+                      className="w-16 h-16 object-cover rounded-md border shadow-sm"
+                    />
+                    <div className="absolute inset-0 rounded-md bg-gradient-to-t from-black/10 to-transparent"></div>
+                  </div>
+                  <Code
+                    variant="default"
+                    className="code-block flex-1 text-xs break-all"
+                  >
+                    {url}
+                  </Code>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={async () => {
+                          const success = await uploadService.copyToClipboard(
+                            url
+                          );
+                          if (success) {
+                            toast("🦄复制成功");
+                          } else {
+                            toast.error("🦄复制失败");
+                          }
+                        }}
+                      >
+                        <Copy fontSize={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>复制链接</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
-            )}
-        </>
-    );
-};
-
-const copyToClip = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-        console.log('文本已成功复制到剪贴板');
-    }).catch(err => {
-        console.error('复制文本时出错:', err);
-    });
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default UploadPage;

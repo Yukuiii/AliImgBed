@@ -1,34 +1,43 @@
 import Head from "./component/head";
 import UploadPage from "./component/uploadPage";
-import { ToastContainer, Zoom } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { Tabs, Tab } from "@nextui-org/react";  
+import { ToastContainer, Zoom } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../components/ui/tabs";
+import { TooltipProvider } from "../../components/ui/tooltip";
 import HistoryPage from "./component/historyPage";
-
-
-
 
 const App = () => {
   return (
-    <>
-      <div className="w-full h-full">
-        <div className="mx-auto px-4 flex flex-col items-center justify-center">
+    <TooltipProvider>
+      <div className="w-full h-full min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8 flex flex-col items-center justify-center">
           <Head />
-          <Tabs className="mt-2" color="primary" variant="bordered">
-            <Tab className="w-[60%]" key="upload" title={
-              <div className="flex items-center space-x-2">
+          <Tabs defaultValue="upload" className="w-full max-w-4xl mt-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger
+                value="upload"
+                className="flex items-center space-x-2"
+              >
                 <span>上传图片</span>
-              </div>
-            }>
-              <UploadPage />
-            </Tab>
-            <Tab className="w-full" key="history" title={
-              <div className="flex items-center space-x-2">
+              </TabsTrigger>
+              <TabsTrigger
+                value="history"
+                className="flex items-center space-x-2"
+              >
                 <span>历史记录</span>
-              </div>
-            }>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="upload" className="mt-6">
+              <UploadPage />
+            </TabsContent>
+            <TabsContent value="history" className="mt-6">
               <HistoryPage />
-            </Tab>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
@@ -47,8 +56,8 @@ const App = () => {
         closeButton={false}
         transition={Zoom}
       />
-    </>
-  )
-}
+    </TooltipProvider>
+  );
+};
 
-export default App
+export default App;

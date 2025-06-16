@@ -1,17 +1,29 @@
-
-
+import { ThemeToggle } from "../../../components/ui/theme-toggle";
 
 const Head = () => {
-    return (
-        <div className="flex flex-col items-center">
-            <div className="flex justify-center items-center mt-10">
-                <img src="https://ae01.alicdn.com/kf/Sbd71701c81804d5c9afe0f0a8ed36d37D.png" alt="Logo" className="h-[64px] w-[64px]" />
-                <div className="text-cyan-500 text-4xl">阿里图床</div>
+  return (
+    <div className="flex flex-col items-center space-y-6 relative">
+      {/* 主题切换器 */}
+      <div className="absolute top-0 right-0">
+        <ThemeToggle />
+      </div>
 
-            </div>
-            <p className="text-red-500 mt-2">接口来源网络，仅供学习交流使用</p>
+      <div className="flex justify-center items-center space-x-4">
+        <div className="h-16 w-16 rounded-lg bg-primary flex items-center justify-center shadow-lg">
+          <span className="text-2xl font-bold text-primary-foreground">图</span>
         </div>
-    )
-}
+        <h1 className="text-4xl font-bold text-foreground tracking-tight">
+          阿里图床
+        </h1>
+      </div>
+      <div className="text-center space-y-2">
+        <p className="text-sm text-muted-foreground">简洁高效的图片上传工具</p>
+        <p className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-md border">
+          接口来源网络，仅供学习交流使用
+        </p>
+      </div>
+    </div>
+  );
+};
 
-export default Head
+export default Head;

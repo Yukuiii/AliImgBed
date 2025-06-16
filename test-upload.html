@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>阿里图床上传逻辑测试</h1>
+    
+    <div class="test-section">
+        <h2>测试场景说明</h2>
+        <p>这个页面用于测试上传逻辑的错误处理是否正确：</p>
+        <ul>
+            <li><strong>未登录状态</strong>: 应该显示"请先登录Aliexpress速卖通获取cookie"错误</li>
+            <li><strong>文件格式错误</strong>: 应该显示格式不支持的错误</li>
+            <li><strong>网络错误</strong>: 应该显示相应的网络错误</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>修复内容</h2>
+        <p>修复了以下问题：</p>
+        <ol>
+            <li><strong>Toast显示逻辑错误</strong>: 
+                <br>之前即使上传失败，toast也会显示"上传成功"
+                <br>现在会根据实际结果显示正确的成功/失败消息
+            </li>
+            <li><strong>Promise处理</strong>: 
+                <br>创建了一个真正会reject的Promise用于toast.promise
+                <br>确保失败时toast显示错误消息
+            </li>
+            <li><strong>错误消息传递</strong>: 
+                <br>使用自定义的error render函数显示具体错误信息
+                <br>保持控制台错误日志用于调试
+            </li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>测试步骤</h2>
+        <ol>
+            <li>确保未登录Aliexpress（清除相关cookie）</li>
+            <li>在扩展中尝试上传图片</li>
+            <li>观察toast消息是否显示"请先登录Aliexpress速卖通获取cookie"</li>
+            <li>检查控制台是否有相应的错误日志</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>代码变更摘要</h2>
+        <pre><code>// 修复前的问题代码
+const uploadPromise = uploadService.uploadFile(file, {
+  onSuccess: (url) => { /* ... */ },
+  onError: (error) => { console.error(error); }
+});
+await toast.promise(uploadPromise, {
+  success: "上传成功", // 总是显示成功
+  error: "上传失败"    // 从不显示
+});
+
+// 修复后的正确代码
+const uploadPromise = new Promise(async (resolve, reject) => {
+  const result = await uploadService.uploadFile(file);
+  if (result.success) {
+    resolve(result.url);
+  } else {
+    reject(new Error(result.error)); // 真正的reject
+  }
+});
+await toast.promise(uploadPromise, {
+  success: "上传成功",
+  error: { render({ data }) { return data.message; } }
+});</code></pre>
+    </div>
+
+    <script>
+        // 简单的测试脚本
+        console.log('上传测试页面已加载');
+        console.log('请在浏览器扩展中测试上传功能');
+        
+        // 检查是否有阿里速卖通的cookie
+        const cookies = document.cookie;
+        const hasAliCookie = cookies.includes('xman_us_t=');
+        
+        const resultDiv = document.createElement('div');
+        resultDiv.className = `test-result ${hasAliCookie ? 'success' : 'error'}`;
+        resultDiv.innerHTML = `
+            <strong>当前登录状态:</strong> 
+            ${hasAliCookie ? '已登录阿里速卖通' : '未登录阿里速卖通 (适合测试错误处理)'}
+        `;
+        
+        document.querySelector('.test-section:last-child').appendChild(resultDiv);
+    </script>
+</body>
+</html>
