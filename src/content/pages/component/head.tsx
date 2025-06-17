@@ -1,13 +1,6 @@
-import { ThemeToggle } from "../../../components/ui/theme-toggle";
-
 const Head = () => {
   return (
-    <div className="flex flex-col items-center space-y-6 relative">
-      {/* 主题切换器 */}
-      <div className="absolute top-0 right-0">
-        <ThemeToggle />
-      </div>
-
+    <div className="flex flex-col items-center space-y-6">
       <div className="flex justify-center items-center space-x-4">
         <div className="h-16 w-16 rounded-lg bg-primary flex items-center justify-center shadow-lg">
           <span className="text-2xl font-bold text-primary-foreground">图</span>

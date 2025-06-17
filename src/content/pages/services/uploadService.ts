@@ -19,11 +19,11 @@ export interface UploadConfig {
 }
 
 // 支持的图片格式
-const SUPPORTED_FORMATS = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+const SUPPORTED_FORMATS = ["png", "jpg", "jpeg", "gif", "webp"];
 
 // 阿里图床上传接口
-const UPLOAD_URL = 'https://filebroker.aliexpress.com/x/upload';
-const BIZ_CODE = 'ae_profile_avatar_upload';
+const UPLOAD_URL = "https://filebroker.aliexpress.com/x/upload";
+const BIZ_CODE = "ae_profile_avatar_upload";
 
 /**
  * 检查用户是否已登录（通过cookie检查）
@@ -34,31 +34,33 @@ export const checkUserLogin = (): { isLoggedIn: boolean; error?: string } => {
     .split("; ")
     .find((row) => row.startsWith("xman_us_t="))
     ?.split("=")[1];
-  
+
   if (!user) {
     return {
       isLoggedIn: false,
-      error: "请先登录Aliexpress速卖通获取cookie"
+      error: "请先登录Aliexpress速卖通获取cookie",
     };
   }
-  
+
   return { isLoggedIn: true };
 };
 
 /**
  * 验证文件格式
  */
-export const validateFileFormat = (file: File): { isValid: boolean; error?: string } => {
+export const validateFileFormat = (
+  file: File
+): { isValid: boolean; error?: string } => {
   const fileName = file.name;
   const fileExt = fileName.split(".").pop()?.toLowerCase();
-  
+
   if (!fileExt || !SUPPORTED_FORMATS.includes(fileExt)) {
     return {
       isValid: false,
-      error: `只支持${SUPPORTED_FORMATS.join('、')}格式的图片`
+      error: `只支持${SUPPORTED_FORMATS.join("、")}格式的图片`,
     };
   }
-  
+
   return { isValid: true };
 };
 
@@ -101,7 +103,7 @@ export const uploadToAliImgBed = async (
 
     // 开始上传
     config.onProgress?.(0);
-    
+
     const response = await fetch(UPLOAD_URL, {
       method: "POST",
       body: formData,
@@ -122,7 +124,7 @@ export const uploadToAliImgBed = async (
       return {
         success: true,
         url: result.url,
-        code: result.code
+        code: result.code,
       };
     } else if (result.code === 5) {
       const error = "cookie过期,请重新登录Aliexpress速卖通获取cookie";
@@ -130,7 +132,7 @@ export const uploadToAliImgBed = async (
       return {
         success: false,
         error,
-        code: result.code
+        code: result.code,
       };
     } else {
       const error = result.message || "上传失败";
@@ -138,16 +140,16 @@ export const uploadToAliImgBed = async (
       return {
         success: false,
         error,
-        code: result.code
+        code: result.code,
       };
     }
-
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "上传过程中出错";
+    const errorMessage =
+      error instanceof Error ? error.message : "上传过程中出错";
     config.onError?.(errorMessage);
     return {
       success: false,
-      error: errorMessage
+      error: errorMessage,
     };
   }
 };
@@ -188,26 +190,26 @@ export class UploadService {
     config: UploadConfig = {}
   ): Promise<UploadResult[]> {
     const results: UploadResult[] = [];
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const fileConfig = {
         ...config,
         onProgress: (progress: number) => {
-          const totalProgress = ((i * 100) + progress) / files.length;
+          const totalProgress = (i * 100 + progress) / files.length;
           config.onProgress?.(totalProgress);
-        }
+        },
       };
-      
+
       const result = await this.uploadFile(file, fileConfig);
       results.push(result);
-      
+
       // 如果上传失败且配置了错误处理，可以选择继续或停止
       if (!result.success && config.onError) {
         // 这里可以根据需要决定是否继续上传其他文件
       }
     }
-    
+
     return results;
   }
 
